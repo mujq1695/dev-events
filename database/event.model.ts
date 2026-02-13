@@ -119,7 +119,16 @@ function generateSlug(title: string): string {
  * Throws error if date is invalid.
  */
 function normalizeDateToISO(dateStr: string): string {
-  const parsed = new Date(dateStr);
+  let parsed: Date;
+
+  // Detect ISO date-only format (e.g. "2024-05-20") to prevent timezone shifts
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    parsed = new Date(Date.UTC(year, month - 1, day));
+  } else {
+    parsed = new Date(dateStr);
+  }
+
   if (isNaN(parsed.getTime())) {
     throw new Error(`Invalid date format: ${dateStr}`);
   }
